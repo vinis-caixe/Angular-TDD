@@ -12,9 +12,9 @@ export class SignUpComponent implements OnInit {
   password = '';
   passwordRepeat = '';
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   onChangeUsername(event: Event) {
     this.username = (event.target as HTMLInputElement).value;
@@ -34,12 +34,12 @@ export class SignUpComponent implements OnInit {
 
   onClickSignUp() {
     this.httpClient
-      .post('http://localhost:8080/api/1.0/users', {
+      .post('/api/1.0/users', {
         username: this.username,
         password: this.password,
         email: this.email,
       })
-      .subscribe(() => {});
+      .subscribe(() => { });
   }
 
   isDisabled() {
