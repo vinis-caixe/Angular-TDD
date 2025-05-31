@@ -34,7 +34,7 @@ export class SignUpComponent implements OnInit {
 
   onClickSignUp() {
     this.httpClient
-      .post('/api/1.0/users', {
+      .post('http://localhost:8080/api/1.0/users', {
         username: this.username,
         password: this.password,
         email: this.email,
