@@ -26,7 +26,10 @@
         />
       </div>
       <div class="text-center">
-        <button class="btn btn-primary" [disabled]="isDisabled()">Sign Up</button>
+        <button class="btn btn-primary" [disabled]="isDisabled() || apiProgress">
+          <span *ngIf="apiProgress" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          Sign Up
+        </button>
       </div>
     </form>
   </div>

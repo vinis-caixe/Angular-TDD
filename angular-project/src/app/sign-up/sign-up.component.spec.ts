@@ -84,7 +84,7 @@ describe('SignUpComponent', () => {
     it('has Sign Up button', () => {
       const signUp = fixture.nativeElement as HTMLElement;
       const button = signUp.querySelector('button');
-      expect(button?.textContent).toBe('Sign Up');
+      expect(button?.textContent).toContain('Sign Up');
     });
 
     it('disables the button initially', () => {
@@ -95,10 +95,13 @@ describe('SignUpComponent', () => {
   });
 
   describe('Interactions', () => {
-    it('sends username, email and password to backend after clicking the button', () => {
-      let httpTestingController = TestBed.inject(HttpTestingController);
+    let button: any;
+    let httpTestingController: HttpTestingController;
+    let signUp: HTMLElement;
+    const setupForm = () => {
+      httpTestingController = TestBed.inject(HttpTestingController);
 
-      const signUp = fixture.nativeElement as HTMLElement;
+      signUp = fixture.nativeElement as HTMLElement;
       const usernameInput = signUp.querySelector(
         'input[id="username"]'
       ) as HTMLInputElement;
@@ -120,7 +123,15 @@ describe('SignUpComponent', () => {
       passwordRepeatInput.value = 'P4ssword';
       passwordRepeatInput.dispatchEvent(new Event('input'));
       fixture.detectChanges();
-      const button = signUp.querySelector('button');
+      button = signUp.querySelector('button');
+    }
+
+    it('enables the button when the password and password repeat fields have the same value', () => {
+      setupForm();
+      expect(button?.disabled).toBeFalsy();
+    });
+    it('sends username, email and password to backend after clicking the button', () => {
+      setupForm();
       button?.click();
       const req = httpTestingController.expectOne('/api/1.0/users');
       const requestBody = req.request.body;
@@ -129,6 +140,21 @@ describe('SignUpComponent', () => {
         password: 'P4ssword',
         email: 'user1@mail.com',
       });
+    });
+    it('disables button when there is an ongoing api call', () => {
+      setupForm();
+      button.click();
+      fixture.detectChanges();
+      button.click();
+      httpTestingController.expectOne("/api/1.0/users");
+      expect(button.disabled).toBeTruthy();
+    });
+    it('displays spinner after clicking the submit', () => {
+      setupForm();
+      expect(signUp.querySelector('span[role="status"]')).toBeFalsy();
+      button.click();
+      fixture.detectChanges();
+      expect(signUp.querySelector('span[role="status"]')).toBeTruthy();
     });
   });
 });
