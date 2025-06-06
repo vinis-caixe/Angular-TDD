@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { HttpClientModule } from '@angular/common/http';
+import { AlertComponent } from '../shared/alert/alert.component';
+import { ButtonComponent } from '../shared/button/button.component';
 
 let requestBody: any;
 let counter = 0;
@@ -26,6 +28,7 @@ afterAll(() => server.close());
 const setup = async () => {
   await render(SignUpComponent, {
     imports: [HttpClientModule],
+    declarations: [AlertComponent, ButtonComponent]
   });
 };
 
@@ -125,6 +128,20 @@ describe('SignUpComponent', () => {
       expect(screen.queryByRole("status", { hidden: true })).not.toBeInTheDocument();
       await userEvent.click(button);
       expect(screen.queryByRole("status", { hidden: true })).toBeInTheDocument();
+    });
+    it('displays account activation notification after succesful sign up request', async () => {
+      await setupForm();
+      expect(screen.queryByText('Please check your e-mail to activate your account')).not.toBeInTheDocument();
+      await userEvent.click(button);
+      const text = await screen.findByText('Please check your e-mail to activate your account');
+      expect(text).toBeInTheDocument();
+    });
+    it('hides sign up form after successful sign up request', async () => {
+      await setupForm();
+      const form = screen.getByTestId('form-sign-up');
+      await userEvent.click(button);
+      await screen.findByText('Please check your e-mail to activate your account');
+      expect(form).not.toBeInTheDocument();
     });
   });
 });
