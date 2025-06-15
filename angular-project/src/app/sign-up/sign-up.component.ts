@@ -1,5 +1,6 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { UserService } from '../core/user.service';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-sign-up',
@@ -7,47 +8,31 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./sign-up.component.css'],
 })
 export class SignUpComponent implements OnInit {
-  username = '';
-  email = '';
-  password = '';
-  passwordRepeat = '';
+  form = new FormGroup({
+    username: new FormControl(''),
+    email: new FormControl(''),
+    password: new FormControl(''),
+    passwordRepeat: new FormControl('')
+  });
+
   apiProgress = false;
   signUpSuccess = false;
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private userService: UserService) { }
 
   ngOnInit(): void { }
 
-  onChangeUsername(event: Event) {
-    this.username = (event.target as HTMLInputElement).value;
-  }
-
-  onChangeEmail(event: Event) {
-    this.email = (event.target as HTMLInputElement).value;
-  }
-
-  onChangePassword(event: Event) {
-    this.password = (event.target as HTMLInputElement).value;
-  }
-
-  onChangePasswordRepeat(event: Event) {
-    this.passwordRepeat = (event.target as HTMLInputElement).value;
-  }
-
   onClickSignUp() {
+    const body = this.form.value;
+    delete body.passwordRepeat
+
     this.apiProgress = true;
-    this.httpClient
-      .post('/api/1.0/users', {
-        username: this.username,
-        password: this.password,
-        email: this.email,
-      })
-      .subscribe(() => {
-        this.signUpSuccess = true;
-      });
+    this.userService.signUp(body).subscribe(() => {
+      this.signUpSuccess = true;
+    });
   }
 
   isDisabled() {
-    return this.password ? this.password !== this.passwordRepeat : true;
+    return this.form.get('password')?.value ? this.form.get('password')?.value !== this.form.get('passwordRepeat')?.value : true;
   }
 }
